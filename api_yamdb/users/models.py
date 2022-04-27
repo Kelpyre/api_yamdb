@@ -13,8 +13,11 @@ class User(AbstractUser):
     bio = models.TextField(
         'Биография',
         blank=True,
+        null=True
     )
-    role = models.TextField(
+    role = models.CharField(
         'Роль',
-        default='Anonymous',
+        default='user',
+        choices=USER_ROLES,
+        max_length=55,
     )
