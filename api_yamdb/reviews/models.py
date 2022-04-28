@@ -19,7 +19,7 @@ REVIEW_SCORE = (
 class Category(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -28,7 +28,7 @@ class Category(models.Model):
 class Genre(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -37,26 +37,30 @@ class Genre(models.Model):
 class Title(models.Model):
     name = models.CharField(max_length=256)
     year = models.IntegerField()
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL,
-        related_name='titles', blank=True, null=True
+        Category,
+        on_delete=models.SET_NULL,
+        related_name='titles',
+        blank=True,
+        null=True
     )
     genre = models.ManyToManyField(
         Genre,
         through='GenreTitle',
+        blank=True
     )
 
 
 class GenreTitle(models.Model):
-    genre = models.ForeignKey(
-        Genre,
+    title = models.ForeignKey(
+        Title,
         on_delete=models.SET_NULL,
         blank=True,
         null=True
     )
-    title = models.ForeignKey(
-        Title,
+    genre = models.ForeignKey(
+        Genre,
         on_delete=models.SET_NULL,
         blank=True,
         null=True
@@ -64,13 +68,13 @@ class GenreTitle(models.Model):
 
 
 class Review(models.Model):
+    title = models.ForeignKey(
+        Title, on_delete=models.CASCADE, related_name='reviews')
+    text = models.TextField()
     author = models.ForeignKey(
         User, on_delete=models.CASCADE,
         related_name='reviews',
     )
-    title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='reviews')
-    text = models.TextField()
     score = models.IntegerField(
         default=1,
         choices=REVIEW_SCORE,
@@ -95,11 +99,11 @@ class Review(models.Model):
 class Comment(models.Model):
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name='comments')
+    text = models.TextField()
     author = models.ForeignKey(
         User, on_delete=models.CASCADE,
         related_name='comments',
     )
-    text = models.TextField()
     pub_date = models.DateTimeField('Дата добавления', auto_now_add=True)
 
     def __str__(self):
