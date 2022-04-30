@@ -50,6 +50,14 @@ class Title(models.Model):
         through='GenreTitle',
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'category'],
+                name='unique_category',
+            ),
+        ]
+
 
 class GenreTitle(models.Model):
     title = models.ForeignKey(
@@ -60,6 +68,14 @@ class GenreTitle(models.Model):
         Genre,
         on_delete=models.CASCADE,
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['title', 'genre'],
+                name='unique_genre',
+            ),
+        ]
 
 
 class Review(models.Model):
@@ -79,7 +95,7 @@ class Review(models.Model):
         null=True,
     )
     score = models.IntegerField(
-        default=1,
+        default=None,
         choices=REVIEW_SCORE,
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
