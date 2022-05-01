@@ -12,6 +12,7 @@ from users.models import User
 from users.send_mail_util import send_password_mail
 from .serializers import (LoginSerializer, SignupUserSerializer,
                           UserMeSerializer, UsersSerializer)
+from .permissions import AdminOnly
 
 
 @api_view(['POST'])
@@ -41,13 +42,17 @@ class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     pagination_class = PageNumberPagination
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated, AdminOnly)
     filter_backends = (filters.SearchFilter,)
-    # filterset_fields = ('username')
+    filterset_fields = ('username')
     search_fields = ('username',)
     lookup_field = 'username'
 
-    @action(detail=False, methods=['get', 'patch'], url_path='me')
+    @action(
+        detail=False,
+        methods=['get', 'patch'],
+        url_path='me',
+        permission_classes=(permissions.IsAuthenticated,))
     def administration_user_me(self, request):
         get_me_user = get_object_or_404(User, username=self.request.user)
         if request.method == 'GET':
