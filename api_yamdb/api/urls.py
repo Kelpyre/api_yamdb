@@ -2,10 +2,10 @@ from django.urls import include, path
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .views import CommentViewSet, CreateUserViewSet, ReviewViewSet
+from .views import CommentViewSet, ReviewViewSet, token_generate, signup_user, UsersViewSet
 
 router = routers.DefaultRouter()
-router.register('auth/signup', CreateUserViewSet, basename='signup')
+router.register('users', UsersViewSet, basename='users')
 router.register(
     r'titles/(?P<title_id>\d+)/reviews',
     ReviewViewSet,
@@ -20,8 +20,9 @@ router.register(
 urlpatterns = [
     path(
         'v1/auth/token/',
-        TokenObtainPairView.as_view(),
-        name='token_obtain_pair'
+        token_generate,
+        name='token_generate'
     ),
+    path('v1/auth/signup/', signup_user, name='signup'),
     path('v1/', include(router.urls)),
     ]

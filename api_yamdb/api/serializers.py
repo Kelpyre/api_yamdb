@@ -27,7 +27,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         ).exists()
         if review_exists and self.context['request'].method == 'POST':
             raise serializers.ValidationError(
-                f"Вы уже оставляли отзыв на произведение '{title}'!")
+                'Вы уже оставляли отзыв на это произведение !')
         return data
 
 
@@ -44,8 +44,59 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only_fields = ('review',)
 
 
-class CreateUserserializer(serializers.ModelSerializer):
+class SignupUserSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=254, required=True)
+    email = serializers.EmailField(max_length=150, required=True)
+
+    # class Meta:
+    #     fields = ('email', 'username',)
+
+    def validate_username(self, username):
+        if str.lower(username) == 'me':
+            raise serializers.ValidationError(
+                'Имя ""me"" запрещено'
+            )
+        return username
+
+
+class UsersSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
+        )
+        model = User
+
+    def validate_username(self, username):
+        if str.lower(username) == 'me':
+            raise serializers.ValidationError(
+                'Имя ""me"" запрещено'
+            )
+        return username
+
+
+class UserMeSerializer(UsersSerializer):
+    class Meta:
+        fields = (
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
+        )
+
+        read_only_fields = ('role',)
+        model = User
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    confirmation_code = serializers.CharField(required=True)
 
     class Meta:
-        fields = ('email', 'username',)
-        model = User
+        fields = ('username', 'confirmation_code')
