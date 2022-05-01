@@ -29,7 +29,7 @@ class UsersSerializer(serializers.ModelSerializer):
             'role',
         )
         model = User
-    
+
     def validate_username(self, username):
         if str.lower(username) == 'me':
             raise serializers.ValidationError(
@@ -58,4 +58,4 @@ class LoginSerializer(serializers.Serializer):
     confirmation_code = serializers.CharField(required=True)
 
     class Meta:
-        fields = ('username', 'confirmation_code')    
+        fields = ('username', 'confirmation_code')

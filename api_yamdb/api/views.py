@@ -30,7 +30,7 @@ def signup_user(request):
         )
     except Exception:
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    generate_uuid = str(uuid.uuid4())    
+    generate_uuid = str(uuid.uuid4())
     obj_user.confirmation_code = generate_uuid
     obj_user.save()
     send_password_mail(email, generate_uuid)

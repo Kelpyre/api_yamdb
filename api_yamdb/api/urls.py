@@ -14,5 +14,4 @@ urlpatterns = [
     ),
     path('v1/auth/signup/', signup_user, name='signup'),
     path('v1/', include(router.urls)),
-    
 ]
