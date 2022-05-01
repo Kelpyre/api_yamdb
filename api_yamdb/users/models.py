@@ -21,3 +21,4 @@ class User(AbstractUser):
         choices=USER_ROLES,
         max_length=55,
     )
+
