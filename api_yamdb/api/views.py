@@ -18,7 +18,7 @@ from .serializers import (
     LoginSerializer, SignupUserSerializer,
     UserMeSerializer, UsersSerializer
 )
-from .permissions import AdminOnly, AuthorAdminModeratorOrReadOnly, CategoryGenreTitle, ReviewComment
+from .permissions import AdminOnly, CategoryGenreTitle, ReviewComment
 from users.models import User
 from users.send_mail_util import send_password_mail
 
@@ -73,6 +73,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = (ReviewComment,)
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs['title_id'])
@@ -88,6 +89,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = (ReviewComment,)
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs['title_id'])
@@ -125,7 +127,7 @@ def signup_user(request):
 
 class UsersViewSet(viewsets.ModelViewSet):
     """Управление пользователями"""
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('id')
     serializer_class = UsersSerializer
     pagination_class = PageNumberPagination
     permission_classes = (permissions.IsAuthenticated, AdminOnly)
