@@ -2,9 +2,9 @@ from rest_framework import viewsets, mixins, filters, status
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
 
 from reviews.models import Category, Genre, Title
+from .filters import TitleSearchFilter
 from .serializers import (
     CategorySerializer, GenreSerializer,
     TitleSerializer, TitlePostPatchSerializer
@@ -45,8 +45,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']
     pagination_class = LimitOffsetPagination
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['category__slug', 'genre__slug', 'name', 'year']
+    filterset_class = TitleSearchFilter
+    filterset_fields = ['genre', 'category', 'name', 'year']
 
     def get_serializer_class(self):
         if self.action == 'list':

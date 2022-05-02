@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from reviews.models import Category, Genre, Title, Review
+from .validators import validate_year
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -22,6 +23,7 @@ class TitleSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
     genre = GenreSerializer(many=True)
     description = serializers.CharField(required=False)
+    year = serializers.IntegerField(validators=[validate_year])
 
     class Meta(object):
         fields = (
@@ -45,8 +47,10 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class TitlePostPatchSerializer(TitleSerializer):
-    category = serializers.SlugRelatedField(queryset=Category.objects.all(), slug_field='slug')
-    genre = serializers.SlugRelatedField(queryset=Genre.objects.all(), slug_field='slug', many=True)
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(), slug_field='slug')
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(), slug_field='slug', many=True)
 
     def to_representation(self, instance):
         data = super(TitlePostPatchSerializer,
