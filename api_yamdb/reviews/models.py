@@ -72,15 +72,19 @@ class GenreTitle(models.Model):
 
 class Review(models.Model):
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='reviews')
-    text = models.TextField()
+        Title,
+        verbose_name='Произведение',
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
+    text = models.TextField(verbose_name='Отзыв на произведение',)
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE,
+        User,
+        verbose_name='Автор отзыва',
+        on_delete=models.CASCADE,
         related_name='reviews',
     )
-    score = models.IntegerField(
-        choices=REVIEW_SCORE,
-    )
+    score = models.IntegerField('Оценка', choices=REVIEW_SCORE,)
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     class Meta:
@@ -93,23 +97,29 @@ class Review(models.Model):
 
     def __str__(self):
         return (
-            f'Отзыв {self.author.first_name} {self.author.last_name}'
+            f'Отзыв {self.author.first_name} {self.author.last_name} '
             f'на произведение {self.title.name}.'
         )
 
 
 class Comment(models.Model):
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='comments')
-    text = models.TextField()
+        Review,
+        verbose_name='Отзыв на произведение',
+        on_delete=models.CASCADE,
+        related_name='comments',
+    )
+    text = models.TextField(verbose_name='Комментарий к отзыву на произведение',)
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE,
+        User,
+        verbose_name='Автор комментария',
+        on_delete=models.CASCADE,
         related_name='comments',
     )
     pub_date = models.DateTimeField('Дата добавления', auto_now_add=True)
 
     def __str__(self):
         return (
-            f'Комментарий {self.author.first_name} {self.author.last_name}'
+            f'Комментарий {self.author.first_name} {self.author.last_name} '
             f'от {self.pub_date}.'
         )
