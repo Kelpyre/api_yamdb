@@ -16,9 +16,9 @@ from .serializers import (
     TitleSerializer, TitlePostPatchSerializer,
     CommentSerializer, ReviewSerializer,
     LoginSerializer, SignupUserSerializer,
-    UserMeSerializer, UsersSerializer
-)
-from .permissions import AdminOnly, CategoryGenreTitle, ReviewComment
+    UserMeSerializer, UsersSerializer)
+from .permissions import (
+    AdminOnly, AdminOrReadOnly, AuthorAdminModeratorOrReadOnly)
 from users.models import User
 from users.send_mail_util import send_password_mail
 
@@ -35,9 +35,10 @@ class CreateRetrieveDestroyViewSet(
 
 
 class CategoryViewSet(CreateRetrieveDestroyViewSet):
+    """Вьюсет для модели категорий."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (CategoryGenreTitle,)
+    permission_classes = (AdminOrReadOnly,)
 
     def destroy(self, request, *args, **kwargs):
         get_object_or_404(Category, slug=kwargs['pk']).delete()
@@ -45,9 +46,10 @@ class CategoryViewSet(CreateRetrieveDestroyViewSet):
 
 
 class GenreViewSet(CreateRetrieveDestroyViewSet):
+    """Вьюсет для модели жанров."""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (CategoryGenreTitle,)
+    permission_classes = (AdminOrReadOnly,)
 
     def destroy(self, request, *args, **kwargs):
         get_object_or_404(Genre, slug=kwargs['pk']).delete()
@@ -55,13 +57,14 @@ class GenreViewSet(CreateRetrieveDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели тайтлов."""
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']
     pagination_class = LimitOffsetPagination
     filterset_class = TitleSearchFilter
     filterset_fields = ['genre', 'category', 'name', 'year']
-    permission_classes = (CategoryGenreTitle,)
+    permission_classes = (AdminOrReadOnly,)
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -70,9 +73,10 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели ревью."""
     serializer_class = ReviewSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']
-    permission_classes = (ReviewComment,)
+    permission_classes = (AuthorAdminModeratorOrReadOnly,)
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
@@ -86,9 +90,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели комментариев."""
     serializer_class = CommentSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']
-    permission_classes = (ReviewComment,)
+    permission_classes = (AuthorAdminModeratorOrReadOnly,)
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
@@ -106,7 +111,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup_user(request):
-    """Регистрация юзера и получение кода для api"""
+    """Регистрация юзера и получение кода для api."""
     serializer = SignupUserSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     email = serializer.validated_data['email']
@@ -126,7 +131,7 @@ def signup_user(request):
 
 
 class UsersViewSet(viewsets.ModelViewSet):
-    """Управление пользователями"""
+    """Управление пользователями."""
     queryset = User.objects.all().order_by('id')
     serializer_class = UsersSerializer
     pagination_class = PageNumberPagination
@@ -159,6 +164,7 @@ class UsersViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def token_generate(request):
+    """Функция формирования токена."""
     serializer = LoginSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     confirmation_code = serializer.validated_data['confirmation_code']

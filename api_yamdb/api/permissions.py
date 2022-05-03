@@ -8,19 +8,7 @@ class AdminOnly(BasePermission):
         return(request.user.is_admin)
 
 
-class AuthorAdminModeratorOrReadOnly(BasePermission):
-    message = 'Изменение или удаление чужого контента запрещено!'
-
-    def has_object_permission(self, request, view, obj):
-        return (
-            request.method in SAFE_METHODS
-            or obj.author == request.user
-            or request.user.is_moderator
-            or request.user.is_admin
-        )
-
-
-class CategoryGenreTitle(BasePermission):
+class AdminOrReadOnly(BasePermission):
     message = 'Нет прав на создание объекта!'
 
     def has_permission(self, request, view):
@@ -33,7 +21,7 @@ class CategoryGenreTitle(BasePermission):
         )
 
 
-class ReviewComment(BasePermission):
+class AuthorAdminModeratorOrReadOnly(BasePermission):
     message = 'Изменение или удаление чужого контента запрещено!'
 
     def has_permission(self, request, view):
@@ -43,10 +31,11 @@ class ReviewComment(BasePermission):
         )
 
     def has_object_permission(self, request, view, obj):
-        if request.method not in SAFE_METHODS:
-            return (
+        return (
+            request.method in SAFE_METHODS
+            or (
                 obj.author == request.user
                 or request.user.is_moderator
                 or request.user.is_admin
             )
-        return(request.method in SAFE_METHODS)
+        )
