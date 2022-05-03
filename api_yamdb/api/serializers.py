@@ -6,9 +6,9 @@ from users.models import User
 class SignupUserSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=254, required=True)
     email = serializers.EmailField(max_length=150, required=True)
-    
-    # class Meta:
-    #     fields = ('email', 'username',)
+
+    class Meta:
+        fields = ('email', 'username',)
 
     def validate_username(self, username):
         if str.lower(username) == 'me':
