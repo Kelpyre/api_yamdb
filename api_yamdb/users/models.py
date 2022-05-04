@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+# from django.utils.translation import gettext_lazy as _
 
 
 USER_ROLES = (
@@ -10,6 +11,12 @@ USER_ROLES = (
 
 
 class User(AbstractUser):
+
+    # class UsersRoles(models.TextChoices):
+    #     USER = 'user', _('User')
+    #     MODERATOR = 'moderator', _('MODERATOR')
+    #     ADMIN = 'admin', _('Administration')
+
     bio = models.TextField(
         'Биография',
         blank=True,
