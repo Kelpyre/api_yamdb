@@ -19,7 +19,7 @@ REVIEW_SCORE = (
 class Category(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField()
 
     def __str__(self):
         return self.name
@@ -28,7 +28,7 @@ class Category(models.Model):
 class Genre(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField()
 
     def __str__(self):
         return self.name
@@ -37,37 +37,49 @@ class Genre(models.Model):
 class Title(models.Model):
     name = models.CharField(max_length=256)
     year = models.IntegerField()
-    description = models.TextField(blank=True, null=True)
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         related_name='titles',
         blank=True,
-        null=True
+        null=True,
     )
+    description = models.TextField()
     genre = models.ManyToManyField(
         Genre,
         through='GenreTitle',
-        blank=True
     )
 
-    def __str__(self):
-        return self.name
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'category'],
+                name='unique_category',
+            ),
+        ]
 
 
 class GenreTitle(models.Model):
     title = models.ForeignKey(
         Title,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         blank=True,
-        null=True
+        null=True,
     )
     genre = models.ForeignKey(
         Genre,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         blank=True,
-        null=True
+        null=True,
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['title', 'genre'],
+                name='unique_genre',
+            ),
+        ]
 
 
 class Review(models.Model):
@@ -97,7 +109,7 @@ class Review(models.Model):
 
     def __str__(self):
         return (
-            f'Отзыв {self.author.first_name} {self.author.last_name} '
+            f'Отзыв {self.author.first_name} {self.author.last_name}'
             f'на произведение {self.title.name}.'
         )
 
@@ -120,6 +132,6 @@ class Comment(models.Model):
 
     def __str__(self):
         return (
-            f'Комментарий {self.author.first_name} {self.author.last_name} '
+            f'Комментарий {self.author.first_name} {self.author.last_name}'
             f'от {self.pub_date}.'
         )
