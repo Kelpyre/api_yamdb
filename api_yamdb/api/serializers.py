@@ -42,9 +42,10 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
 
     def get_rating(self, obj):
-        rating = Title.objects.filter(id=obj.id).annotate(avg_score=Avg('reviews__score'))
-        if rating[0].avg_score:
-            return int(round(rating[0].avg_score))
+        title_with_rating = Title.objects.filter(id=obj.id).annotate(avg_score=Avg('reviews__score'))
+        rating = title_with_rating[0].avg_score
+        if rating:
+            return int(round(rating))
         return None
 
 
