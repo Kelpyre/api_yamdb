@@ -5,11 +5,11 @@ class AdminOnly(BasePermission):
     """Доступ только у админа или суперюзера"""
 
     def has_permission(self, request, view):
-        return(request.user.is_admin)
+        return request.user.is_admin
 
 
 class AdminOrReadOnly(BasePermission):
-    message = 'Нет прав на создание объекта!'
+    message = 'У вас недостаточно прав для выполнения этой операции'
 
     def has_permission(self, request, view):
         return(

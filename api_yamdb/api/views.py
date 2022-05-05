@@ -2,25 +2,28 @@ import uuid
 
 from rest_framework import viewsets, mixins, filters, status, permissions
 from rest_framework.pagination import (
-    LimitOffsetPagination, PageNumberPagination)
+    LimitOffsetPagination, PageNumberPagination
+)
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import AccessToken
 
-from reviews.models import Category, Genre, Title, Comment, Review
+from reviews.models import Category, Genre, Title
 from .filters import TitleSearchFilter
 from .serializers import (
     CategorySerializer, GenreSerializer,
-    TitleSerializer, TitlePostPatchSerializer,
+    TitleSerializer, UsersSerializer,
     CommentSerializer, ReviewSerializer,
     LoginSerializer, SignupUserSerializer,
-    UserMeSerializer, UsersSerializer)
+    UserMeSerializer,
+)
 from .permissions import (
-    AdminOnly, AdminOrReadOnly, AuthorAdminModeratorOrReadOnly)
+    AdminOnly, AdminOrReadOnly, AuthorAdminModeratorOrReadOnly
+)
 from users.models import User
-from users.send_mail_util import send_password_mail
+from users.send_mail_util import send_confirmation_mail
 
 
 class CreateRetrieveDestroyViewSet(
@@ -39,10 +42,7 @@ class CategoryViewSet(CreateRetrieveDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (AdminOrReadOnly,)
-
-    def destroy(self, request, *args, **kwargs):
-        get_object_or_404(Category, slug=kwargs['pk']).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    lookup_field = 'slug'
 
 
 class GenreViewSet(CreateRetrieveDestroyViewSet):
@@ -50,10 +50,7 @@ class GenreViewSet(CreateRetrieveDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (AdminOrReadOnly,)
-
-    def destroy(self, request, *args, **kwargs):
-        get_object_or_404(Genre, slug=kwargs['pk']).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    lookup_field = 'slug'
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -66,11 +63,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_fields = ['genre', 'category', 'name', 'year']
     permission_classes = (AdminOrReadOnly,)
 
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return TitleSerializer
-        return TitlePostPatchSerializer
-
 
 class ReviewViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели ревью."""
@@ -81,7 +73,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs['title_id'])
-        queryset = Review.objects.filter(title=title)
+        queryset = title.reviews.all()
         return queryset
 
     def perform_create(self, serializer):
@@ -99,7 +91,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs['title_id'])
         review = get_object_or_404(title.reviews, id=self.kwargs['review_id'])
-        queryset = Comment.objects.filter(review=review)
+        queryset = review.comments.all()
         return queryset
 
     def perform_create(self, serializer):
@@ -123,10 +115,10 @@ def signup_user(request):
         )
     except Exception:
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    generate_uuid = str(uuid.uuid4())
-    obj_user.confirmation_code = generate_uuid
+    generated_uuid = str(uuid.uuid4())
+    obj_user.confirmation_code = generated_uuid
     obj_user.save()
-    send_password_mail(email, generate_uuid)
+    send_confirmation_mail(email, generated_uuid)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -169,8 +161,8 @@ def token_generate(request):
     serializer.is_valid(raise_exception=True)
     confirmation_code = serializer.validated_data['confirmation_code']
     username = serializer.validated_data['username']
-    get_user = get_object_or_404(User, username=username)
-    if confirmation_code == get_user.confirmation_code:
-        token = str(AccessToken.for_user(get_user))
+    user = get_object_or_404(User, username=username)
+    if confirmation_code == user.confirmation_code:
+        token = str(AccessToken.for_user(user))
         return Response({'token': token}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
