@@ -1,21 +1,16 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-# from django.utils.translation import gettext_lazy as _
-
-
-USER_ROLES = (
-    ('user', 'User'),
-    ('moderator', 'Moderator'),
-    ('admin', 'Admin')
-)
 
 
 class User(AbstractUser):
-
-    # class UsersRoles(models.TextChoices):
-    #     USER = 'user', _('User')
-    #     MODERATOR = 'moderator', _('MODERATOR')
-    #     ADMIN = 'admin', _('Administration')
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
+    USER_ROLES = (
+        (USER, 'User'),
+        (MODERATOR, 'Moderator'),
+        (ADMIN, 'Admin')
+    )
 
     bio = models.TextField(
         'Биография',
@@ -24,7 +19,7 @@ class User(AbstractUser):
     )
     role = models.CharField(
         'Роль',
-        default='user',
+        default=USER,
         choices=USER_ROLES,
         max_length=55,
     )
@@ -41,12 +36,12 @@ class User(AbstractUser):
 
     @property
     def is_user(self):
-        return self.role == 'user'
+        return self.role == self.USER
 
     @property
     def is_moderator(self):
-        return self.role == 'moderator'
+        return self.role == self.MODERATOR
 
     @property
     def is_admin(self):
-        return self.role == 'admin' or self.is_superuser
+        return self.role == self.ADMIN or self.is_superuser
