@@ -24,8 +24,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_simplejwt',
     'reviews.apps.ReviewsConfig',
-    'api.apps.ApiConfig',
-    'debug_toolbar',
+    'api.apps.ApiConfig',    
 ]
 
 MIDDLEWARE = [
@@ -35,12 +34,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-]
-
-INTERNAL_IPS = [
-    '127.0.0.1',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',    
 ]
 
 INTERNAL_IPS = [
@@ -122,10 +116,7 @@ REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
-
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 5
+    ],    
 }
 
 SIMPLE_JWT = {

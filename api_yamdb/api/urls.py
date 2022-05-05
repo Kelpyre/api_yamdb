@@ -15,12 +15,12 @@ router.register('users', UsersViewSet, basename='users')
 router.register(
     r'titles/(?P<title_id>\d+)/reviews',
     ReviewViewSet,
-    basename='review'
+    basename='reviews'
 )
 router.register(
     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentViewSet,
-    basename='comment'
+    basename='comments'
 )
 
 urlpatterns = [

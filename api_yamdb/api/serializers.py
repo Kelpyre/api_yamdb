@@ -1,4 +1,5 @@
 from statistics import mean
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
@@ -41,11 +42,9 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
 
     def get_rating(self, obj):
-        scores = Review.objects.filter(title=obj.id).values_list(
-            'score', flat=True)
-        if scores:
-            rating = mean(scores)
-            return rating
+        rating = Title.objects.filter(id=obj.id).annotate(avg_score=Avg('reviews__score'))
+        if rating[0].avg_score:
+            return int(round(rating[0].avg_score))
         return None
 
 

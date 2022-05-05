@@ -1,25 +1,14 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 User = get_user_model()
-REVIEW_SCORE = (
-    (1, 1),
-    (2, 2),
-    (3, 3),
-    (4, 4),
-    (5, 5),
-    (6, 6),
-    (7, 7),
-    (8, 8),
-    (9, 9),
-    (10, 10),
-)
 
 
 class Category(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -28,7 +17,7 @@ class Category(models.Model):
 class Genre(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -44,10 +33,11 @@ class Title(models.Model):
         blank=True,
         null=True,
     )
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     genre = models.ManyToManyField(
         Genre,
         through='GenreTitle',
+        blank=True
     )
 
     class Meta:
@@ -96,7 +86,11 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews',
     )
-    score = models.IntegerField('Оценка', choices=REVIEW_SCORE,)
+    score = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        verbose_name='Оценка',
+        )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     class Meta:
