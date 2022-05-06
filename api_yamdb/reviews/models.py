@@ -5,18 +5,6 @@ from django.db import models
 from .validators import validate_year
 
 User = get_user_model()
-REVIEW_SCORE = (
-    (1, 1),
-    (2, 2),
-    (3, 3),
-    (4, 4),
-    (5, 5),
-    (6, 6),
-    (7, 7),
-    (8, 8),
-    (9, 9),
-    (10, 10),
-)
 
 
 class Category(models.Model):
@@ -128,7 +116,6 @@ class Review(models.Model):
     score = models.PositiveSmallIntegerField(
         'Оценка',
         default=None,
-        choices=REVIEW_SCORE,
         validators=[
             MaxValueValidator(10, 'Максимальная оценка - 10'),
             MinValueValidator(1, 'Минимальная оценка - 1'),

@@ -139,12 +139,12 @@ class UsersViewSet(viewsets.ModelViewSet):
         url_path='me',
         permission_classes=(permissions.IsAuthenticated,))
     def administration_user_me(self, request):
-        get_me_user = get_object_or_404(User, username=self.request.user)
+        me_user = get_object_or_404(User, username=self.request.user)
         if request.method == 'GET':
-            serializer = UserMeSerializer(get_me_user)
+            serializer = UserMeSerializer(me_user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         serializer = UserMeSerializer(
-            get_me_user,
+            me_user,
             data=request.data,
             partial=True
         )
