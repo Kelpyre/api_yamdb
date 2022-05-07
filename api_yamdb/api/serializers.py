@@ -3,7 +3,6 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from reviews.models import Category, Genre, Title, Review, Comment
-from .fields import GenreRepresentation, CategoryRepresentation
 from users.models import User
 
 
@@ -19,6 +18,24 @@ class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('name', 'slug')
         model = Genre
+
+
+class CategoryRepresentation(serializers.SlugRelatedField):
+
+    def to_representation(self, obj):
+        data = super(CategoryRepresentation,
+                     self).to_representation(obj)
+        data = CategorySerializer(obj).data
+        return data
+
+
+class GenreRepresentation(serializers.SlugRelatedField):
+
+    def to_representation(self, obj):
+        data = super(GenreRepresentation,
+                     self).to_representation(obj)
+        data = GenreSerializer(obj).data
+        return data
 
 
 class TitleSerializer(serializers.ModelSerializer):

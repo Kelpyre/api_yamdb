@@ -12,11 +12,11 @@ class Category(models.Model):
     slug = models.SlugField('Slug категории', unique=True)
     description = models.TextField('Описание категории')
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ['name']
+
+    def __str__(self):
+        return self.name
 
 
 class Genre(models.Model):
@@ -24,11 +24,11 @@ class Genre(models.Model):
     slug = models.SlugField('Slug жанра', unique=True)
     description = models.TextField('Описание жанра')
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ['name']
+
+    def __str__(self):
+        return self.name
 
 
 class Title(models.Model):
